@@ -71,7 +71,40 @@ const developmentConfig = {
 }
 
 const productionConfig = {
-    
+    // NOT READY FOR USE
+    mode: 'production',
+    output: {
+        path: path.join(__dirname, "dist"),
+        publicPath: '/',
+        filename: '[name].[contenthash].bundle.js',
+    },
+    module: {
+        rules: [
+            {
+                test: /\.(css)$/,
+                use: [
+                    {
+                        loader: 'css-loader',
+                        options: { sourceMap: false, modules: true, },
+                    },
+                ],
+            },
+        ],
+    },
+    optimization: {
+        minimize: true,
+        // Once your build outputs multiple chunks, this option will ensure they share the webpack runtime
+        // instead of having their own. This also helps with long-term caching, since the chunks will only
+        // change when actual code changes, not the webpack runtime.
+        runtimeChunk: {
+            name: 'runtime',
+        },
+    },
+    performance: {
+        // hints: false,
+        maxEntrypointSize: 512000,
+        maxAssetSize: 512000,
+    },
 }
 
 module.exports = env => {
@@ -79,8 +112,6 @@ module.exports = env => {
         case 'development':
             return merge(commonConfig, developmentConfig);
         case 'production':
-            throw new Error('Production config is ready. At first make it');
-            // visit later: https://github.com/taniarascia/webpack-boilerplate/blob/master/config/webpack.prod.js
             return merge(commonConfig, productionConfig);
         default:
             throw new Error(`No matching configuration was found! NODE_ENV=${env.NODE_ENV}`);
