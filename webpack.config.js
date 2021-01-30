@@ -2,8 +2,9 @@ const path = require('path')
 const webpack = require('webpack')
 const { merge } = require('webpack-merge')
 
-const build = path.resolve(__dirname, '../dist')
-const public = path.resolve(__dirname, '../public')
+const src = path.resolve(__dirname, 'src')
+const build = path.resolve(__dirname, 'dist')
+const public = path.resolve(__dirname, 'public')
 
 const entry = './src/index.js';
 
@@ -29,7 +30,16 @@ const commonConfig = {
 
             // Fonts and SVGs: Inline files
             { test: /\.(woff(2)?|eot|ttf|otf|svg|)$/, type: 'asset/inline' },
+
+            {
+                test: /\.tsx?$/,
+                use: 'ts-loader',
+                exclude: /node_modules/,
+            },
         ],
+    },
+    resolve: {
+        extensions: ['.tsx', '.ts', '.js'],
     },
 }
 
@@ -44,11 +54,14 @@ const developmentConfig = {
     devServer: {
         historyApiFallback: true,
         // contentBase: build,
-        contentBase: public,
+        contentBase: [src, public],
         open: true,
         compress: true,
         hot: true,
         port: 3000,
+        watchOptions: {
+            ignored: /node_modules/
+        }
     },
 
     module: {
@@ -110,7 +123,9 @@ const productionConfig = {
 module.exports = env => {
     switch (env.NODE_ENV) {
         case 'development':
-            return merge(commonConfig, developmentConfig);
+            let cfg =  merge(commonConfig, developmentConfig);
+            console.log(cfg)
+            return cfg;
         case 'production':
             return merge(commonConfig, productionConfig);
         default:
